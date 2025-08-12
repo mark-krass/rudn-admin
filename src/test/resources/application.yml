@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}?currentSchema=${DB_SCHEMA}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        default_schema: ${DB_SCHEMA}
+    hibernate:
+      ddl-auto: none
+  liquibase:
+    enabled: true
+    default-schema: ${DB_SCHEMA}
+  banner:
+    location: banner
+
+minio:
+  url: ${MINIO_URL}
+  access-key: ${MINIO_ACCESS_KEY}
+  secret-key: ${MINIO_SECRET_KEY}
+  bucket:
+    name: vpn
+
+vpn:
+  scripts:
+    create: ./src/test/resources/scripts/create-vpn.ps1
+    delete: ./src/test/resources/scripts/delete-vpn.ps1
+  output:
+    dir: build/vpn-out

@@ -1,0 +1,119 @@
+x-common-env: &common-env
+  TZ: Europe/Moscow
+
+services:
+  student-db:
+    image: postgres:16.9
+    container_name: student-db
+    environment:
+      <<: *common-env
+      POSTGRES_DB: postgres
+      POSTGRES_USER: studentDBAdmin
+      POSTGRES_PASSWORD: studentPass
+    ports:
+      - "5433:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U studentDBAdmin -d postgres" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - student-data:/var/lib/postgresql/data
+
+  rudn-db:
+    image: postgres:16.9
+    container_name: rudn-db
+    environment:
+      <<: *common-env
+      POSTGRES_DB: rudn
+      POSTGRES_USER: mainBDAdmin
+      POSTGRES_PASSWORD: mainBDPass
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mainBDAdmin -d rudn"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - admin-data:/var/lib/postgresql/data
+
+  minio:
+    image: minio/minio:RELEASE.2025-07-23T15-54-02Z
+    container_name: minio
+    command: server --console-address ":9001" /data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9000/minio/health/live || exit 1"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+  rudn-admin:
+    container_name: rudn-admin
+    image: rudn-admin-image:latest
+    depends_on:
+      rudn-db:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+      - "5005:5005"
+    volumes:
+#      - ./volumes/admin/ovpns:/opt/admin/ovpns
+      - ./volumes/admin/scripts:/opt/admin/scripts:ro
+#      - ./volumes/admin/logs:/var/log/rudn-admin
+#      - \\wsl.localhost\Ubuntu\home\gamb\.ssh:/run/ssh-keys:ro
+#    entrypoint: >
+#      /bin/bash -c "
+#      set -e;
+#      mkdir -p /root/.ssh;
+#      cp /run/ssh-keys/id_rsa /root/.ssh/id_rsa;
+#      chmod 600 /root/.ssh/id_rsa;
+#      cp /run/ssh-keys/known_hosts /root/.ssh/known_hosts;
+#      chmod 644 /root/.ssh/known_hosts;
+#      chown -R root:root /root/.ssh;
+#      chmod 700 /root/.ssh;
+#      exec java -jar /rudn-admin-image.jar"
+    environment:
+      <<: *common-env
+
+#      LOGGING_FILE_NAME: /var/log/rudn-admin/rudn-admin.log
+#      LOGGING_LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE: 1GB
+#      LOGGING_LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START: "true"
+
+      DB_HOST: rudn-db
+      DB_PORT: 5432
+      DB_NAME: rudn
+      DB_USERNAME: mainBDAdmin
+      DB_PASSWORD: mainBDPass
+      DB_SCHEMA: admin
+
+      STUDENT_DB_HOST: student-db
+      STUDENT_DB_PORT: 5432
+      STUDENT_DB_USERNAME: studentDBAdmin
+      STUDENT_DB_PASSWORD: studentPass
+
+      MINIO_URL: http://host.docker.internal:9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
+
+      VPN_CREATE_SCRIPT: /opt/admin/scripts/create-remote-vpn.sh
+      VPN_DELETE_SCRIPT: /opt/admin/scripts/revoke-remote-vpn.sh
+      VPN_OUTPUT_DIR: /opt/admin/ovpns
+
+
+volumes:
+  minio-data:
+  admin-data:
+  student-data:
