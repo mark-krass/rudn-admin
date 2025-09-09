@@ -8,7 +8,7 @@ spring:
       hibernate:
         default_schema: ${DB_SCHEMA}
     hibernate:
-      ddl-auto: none
+      ddl-auto: validate
   liquibase:
     enabled: true
     default-schema: ${DB_SCHEMA}
