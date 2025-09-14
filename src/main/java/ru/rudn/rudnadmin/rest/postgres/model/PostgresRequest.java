@@ -10,7 +10,7 @@ import java.util.List;
 public class PostgresRequest {
 
     @NotNull
-    @Schema(description = "Имя базы данных postgres", example = "students_db")
+    @Schema(description = "Имя базы данных postgres", example = "students_db", requiredMode = Schema.RequiredMode.REQUIRED)
     private String dbName;
 
     @Schema(description = "SQL-запрос, применяемый к каждой схеме", example = "[\"CREATE TABLE t(id serial)\"]")

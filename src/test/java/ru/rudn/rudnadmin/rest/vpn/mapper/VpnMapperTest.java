@@ -18,17 +18,6 @@ class VpnMapperTest {
     private VpnMapper mapper;
 
     @Test
-    @DisplayName("VpnMapper: toEntity маппит userId и игнорирует id")
-    void toEntityMapsStudentId() {
-        final VpnDto dto = VpnDto.builder().id(123L).userId(5L).link("lnk").build();
-        final Vpn entity = mapper.toEntity(dto);
-        assertNull(entity.getId());
-        assertNotNull(entity.getUser());
-        assertEquals(5L, entity.getUser().getId());
-        assertEquals("lnk", entity.getLink());
-    }
-
-    @Test
     @DisplayName("VpnMapper: toDto маппит user.id в userId")
     void toDtoMapsStudentId() {
         final User user = User.builder().id(9L).build();

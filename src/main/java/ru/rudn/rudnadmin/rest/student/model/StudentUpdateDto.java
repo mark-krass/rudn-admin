@@ -15,11 +15,11 @@ import lombok.NoArgsConstructor;
 @Schema(description = "Информация для обновления студента")
 public class StudentUpdateDto {
 
-    @Schema(description = "ID группы", example = "1")
+    @Schema(description = "ID группы", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     private Long groupId;
 
-    @Schema(description = "ID пользователя", example = "1")
+    @Schema(description = "ID пользователя", example = "1", requiredMode = Schema.RequiredMode.REQUIRED)
     @NotNull
     private Long userId;
 

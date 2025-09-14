@@ -13,10 +13,6 @@ import java.util.List;
         nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
 public interface VpnMapper {
 
-    @Mapping(target = "id", ignore = true)
-    @Mapping(target = "user.id", source = "userId")
-    Vpn toEntity(VpnDto dto);
-
     @Mapping(target = "userId", source = "user.id")
     VpnDto toResponse(Vpn entity);
 
