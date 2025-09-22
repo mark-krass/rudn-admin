@@ -248,6 +248,66 @@ class PostgresControllerIT extends TestContainersBase {
         }
     }
 
+	@Test
+	@DisplayName("PostgresController: студент 11530456 — создаёт 3-колоночную таблицу и ALTER TABLE (add/drop)")
+	void student_11530456_create_and_alter_table() throws Exception {
+		final Direction dir = directionRepository.save(Direction.builder().name("D").code("C6").build());
+		final Group group = groupRepository.save(Group.builder().name("G6").year((short) 2024).direction(dir).build());
+		final User u = userRepository.save(User.builder().email("11530456@e").build());
+		final Student s = studentRepository.save(Student.builder().group(group).user(u).build());
+
+		final String dbName = "stud_" + UUID.randomUUID().toString().replace('-', '_');
+		final PostgresRequest req = new PostgresRequest();
+		req.setDbName(dbName);
+		// создаём таблицу с тремя колонками в пользовательской схеме
+		req.setModel(List.of(
+				"CREATE TABLE IF NOT EXISTS alter_tbl(\n" +
+						"id serial primary key,\n" +
+						"col_a int,\n" +
+						"col_b text\n" +
+					")"
+		));
+
+		final String json = objectMapper.writeValueAsString(req);
+		final var res = mockMvc.perform(post("/api/postgres/student/" + s.getId())
+					.contentType(MediaType.APPLICATION_JSON)
+					.content(json))
+				.andExpect(status().isCreated())
+				.andReturn();
+
+		final UserCredential cred = objectMapper.readValue(res.getResponse().getContentAsByteArray(), UserCredential.class);
+		assertNotNull(cred.getPassword(), "Первый вызов student должен вернуть пароль");
+
+		// подключаемся как студент и изменяем структуру таблицы: добавляем новую колонку и удаляем старую
+		try (Connection asStudent = DriverManager.getConnection(studentDbUrl(dbName), cred.getUsername(), cred.getPassword());
+			 Statement st = asStudent.createStatement()) {
+			st.executeUpdate("SET search_path TO '" + cred.getSchema() + "'");
+			st.executeUpdate("ALTER TABLE alter_tbl ADD COLUMN col_c timestamp");
+			st.executeUpdate("ALTER TABLE alter_tbl DROP COLUMN col_a");
+		}
+
+		// проверяем, что колонки изменились как ожидается
+		try (Connection c = DriverManager.getConnection(studentDbUrl(dbName), STUDENT_POSTGRESQL.getUsername(), STUDENT_POSTGRESQL.getPassword());
+			 Statement st = c.createStatement()) {
+			final String schema = cred.getSchema();
+			try (ResultSet rs = st.executeQuery(
+					"SELECT count(*) FROM information_schema.columns WHERE table_schema='" + schema + "' AND table_name='alter_tbl' AND column_name='col_b'")) {
+				assertTrue(rs.next());
+				assertEquals(1, rs.getInt(1));
+			}
+			try (ResultSet rs = st.executeQuery(
+					"SELECT count(*) FROM information_schema.columns WHERE table_schema='" + schema + "' AND table_name='alter_tbl' AND column_name='col_c'")) {
+				assertTrue(rs.next());
+				assertEquals(1, rs.getInt(1));
+			}
+			try (ResultSet rs = st.executeQuery(
+					"SELECT count(*) FROM information_schema.columns WHERE table_schema='" + schema + "' AND table_name='alter_tbl' AND column_name='col_a'")) {
+				assertTrue(rs.next());
+				assertEquals(0, rs.getInt(1));
+			}
+		}
+	}
+
     private String studentDbUrl(String dbName) {
         return "jdbc:postgresql://" + STUDENT_POSTGRESQL.getHost() + ":" + STUDENT_POSTGRESQL.getFirstMappedPort() + "/" + dbName;
     }

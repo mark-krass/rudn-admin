@@ -70,6 +70,8 @@ public class PostgresServiceImpl implements PostgresService {
                     final String email = s.getUser().getEmail();
                     final String schema = substringEmail(email);
                     final String username = schema;
+                    final String quotedUsername = quoteIdentifier(username);
+                    final String quotedSchema = quoteIdentifier(schema);
                     String password = null;
                     boolean exists;
                     try (ResultSet rsRole = st.executeQuery("SELECT 1 FROM pg_roles WHERE rolname=" + quoteLiteral(username))) {
@@ -77,28 +79,30 @@ public class PostgresServiceImpl implements PostgresService {
                     }
                     if (!exists) {
                         password = generatePassword();
-                        st.executeUpdate("CREATE ROLE " + quoteIdentifier(username) + " LOGIN PASSWORD " + quoteLiteral(password));
+                        st.executeUpdate("CREATE ROLE " + quotedUsername + " LOGIN PASSWORD " + quoteLiteral(password));
                     }
 
                     // схема пользователя
-                    st.executeUpdate("DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname=" + quoteLiteral(schema) + ") THEN CREATE SCHEMA " + quoteIdentifier(schema) + "; END IF; END $$;");
-                    st.executeUpdate("ALTER SCHEMA " + quoteIdentifier(schema) + " OWNER TO " + quoteIdentifier(username) + ";");
+                    st.executeUpdate("DO $$ BEGIN IF NOT EXISTS (SELECT 1 FROM pg_namespace WHERE nspname=" + quoteLiteral(schema) + ") THEN CREATE SCHEMA " + quotedSchema + "; END IF; END $$;");
+                    st.executeUpdate("ALTER SCHEMA " + quotedSchema + " OWNER TO " + quotedUsername + ";");
 
                     // доступ только к своей схеме
-                    st.executeUpdate("GRANT USAGE ON SCHEMA " + quoteIdentifier(schema) + " TO " + quoteIdentifier(username) + ";");
-                    st.executeUpdate("ALTER ROLE " + quoteIdentifier(username) + " SET search_path = " + quoteIdentifier(schema) + ";");
-                    st.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE " + quoteIdentifier(username) + " IN SCHEMA " + quoteIdentifier(schema) + " GRANT ALL ON TABLES TO " + quoteIdentifier(username) + ";");
-                    st.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE " + quoteIdentifier(username) + " IN SCHEMA " + quoteIdentifier(schema) + " GRANT ALL ON SEQUENCES TO " + quoteIdentifier(username) + ";");
+                    st.executeUpdate("GRANT USAGE ON SCHEMA " + quotedSchema + " TO " + quotedUsername + ";");
+                    st.executeUpdate("ALTER ROLE " + quotedUsername + " SET search_path = " + quotedSchema + ";");
+                    st.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE " + quotedUsername + " IN SCHEMA " + quotedSchema + " GRANT ALL ON TABLES TO " + quotedUsername + ";");
+                    st.executeUpdate("ALTER DEFAULT PRIVILEGES FOR ROLE " + quotedUsername + " IN SCHEMA " + quotedSchema + " GRANT ALL ON SEQUENCES TO " + quotedUsername + ";");
 
-                    // накатываем модель
+                    // накатываем модель от имени самого пользователя, чтобы он стал владельцем созданных объектов
                     if (modelSql != null && !modelSql.isEmpty()) {
-                        st.executeUpdate("SET search_path TO " + quoteIdentifier(schema));
+                        // Важно: сначала устанавливаем роль пользователя, затем search_path на его схему
+                        st.executeUpdate("SET ROLE " + quotedUsername);
+                        st.executeUpdate("SET search_path TO " + quotedSchema);
                         for (String sql : modelSql) {
                             if (sql != null && !sql.isBlank()) st.executeUpdate(sql);
                         }
+                        // Сбрасываем search_path и роль назад к admin
                         st.executeUpdate("RESET search_path");
-                        // дать пользователю право читать все таблицы, созданные моделью от имени admin
-                        st.executeUpdate("GRANT SELECT ON ALL TABLES IN SCHEMA " + quoteIdentifier(schema) + " TO " + quoteIdentifier(username) + ";");
+                        st.executeUpdate("RESET ROLE");
                     }
 
                     credentials.add(new UserCredential(username, password, schema));
