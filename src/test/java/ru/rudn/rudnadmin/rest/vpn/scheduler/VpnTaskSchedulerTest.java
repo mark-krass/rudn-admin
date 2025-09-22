@@ -39,7 +39,7 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity1());
-        final var student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.CREATE_OVPN).build());
 
@@ -62,7 +62,7 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity2());
-        final var student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.DELETE_OVPN).build());
 
@@ -85,8 +85,8 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var group = groupRepository.save(groupEntity1(dir));
         final var user1 = userRepository.save(userEntity1());
         final var user2 = userRepository.save(userEntity2());
-        final var s1 = studentRepository.save(Student.builder().group(group).user(user1).build());
-        final var s2 = studentRepository.save(Student.builder().group(group).user(user2).build());
+        studentRepository.save(Student.builder().group(group).user(user1).build());
+        studentRepository.save(Student.builder().group(group).user(user2).build());
         final Vpn vpn1 = vpnRepository.save(Vpn.builder().user(user1).build());
         final Vpn vpn2 = vpnRepository.save(Vpn.builder().user(user2).build());
         final VpnTask t1 = vpnTaskRepository.save(VpnTask.builder().vpn(vpn1).type(TaskType.CREATE_OVPN).build());
@@ -112,8 +112,8 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var group = groupRepository.save(groupEntity1(dir));
         final var user1 = userRepository.save(userEntity1());
         final var user2 = userRepository.save(userEntity2());
-        final var s1 = studentRepository.save(Student.builder().group(group).user(user1).build());
-        final var s2 = studentRepository.save(Student.builder().group(group).user(user2).build());
+        studentRepository.save(Student.builder().group(group).user(user1).build());
+        studentRepository.save(Student.builder().group(group).user(user2).build());
         final Vpn vpn1 = vpnRepository.save(Vpn.builder().user(user1).build());
         final Vpn vpn2 = vpnRepository.save(Vpn.builder().user(user2).build());
         final VpnTask t1 = vpnTaskRepository.save(VpnTask.builder().vpn(vpn1).type(TaskType.DELETE_OVPN).build());
@@ -141,7 +141,7 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity1());
-        final var student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.CREATE_OVPN).build());
 
@@ -160,7 +160,7 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity2());
-        final var student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.DELETE_OVPN).build());
 
@@ -180,7 +180,7 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity2());
-        final var student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.DELETE_OVPN).build());
 
@@ -200,7 +200,7 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity1());
-        final var student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.CREATE_OVPN).build());
 
@@ -220,7 +220,7 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity1());
-        final var student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.RENEW_LINK).build());
 
@@ -237,7 +237,7 @@ class VpnTaskSchedulerTest extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity2());
-        final var student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.RENEW_LINK).build());
 

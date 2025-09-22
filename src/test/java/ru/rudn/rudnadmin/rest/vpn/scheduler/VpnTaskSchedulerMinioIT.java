@@ -43,8 +43,8 @@ class VpnTaskSchedulerMinioIT extends TestContainersBase {
         final var group = groupRepository.save(groupEntity1(dir));
         final var u1 = userRepository.save(userEntity1());
         final var u2 = userRepository.save(userEntity2());
-        final var s1 = studentRepository.save(Student.builder().group(group).user(u1).build());
-        final var s2 = studentRepository.save(Student.builder().group(group).user(u2).build());
+        studentRepository.save(Student.builder().group(group).user(u1).build());
+        studentRepository.save(Student.builder().group(group).user(u2).build());
 
         final Vpn vpn1 = vpnRepository.save(Vpn.builder().user(u1).build());
         final Vpn vpn2 = vpnRepository.save(Vpn.builder().user(u2).build());

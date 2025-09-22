@@ -34,7 +34,7 @@ class VpnTaskStepExecutorIT extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity2());
-        final Student student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.DELETE_MINIO).build());
 
@@ -57,7 +57,7 @@ class VpnTaskStepExecutorIT extends TestContainersBase {
         final var dir = directionRepository.save(directionEntity1());
         final var group = groupRepository.save(groupEntity1(dir));
         final var user = userRepository.save(userEntity1());
-        final Student student = studentRepository.save(Student.builder().group(group).user(user).build());
+        studentRepository.save(Student.builder().group(group).user(user).build());
         final Vpn vpn = vpnRepository.save(Vpn.builder().user(user).build());
         final VpnTask task = vpnTaskRepository.save(VpnTask.builder().vpn(vpn).type(TaskType.RENEW_LINK).build());
 

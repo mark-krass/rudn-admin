@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import ru.rudn.rudnadmin.entity.vpn.TaskType;
 import ru.rudn.rudnadmin.entity.vpn.VpnTask;
 import ru.rudn.rudnadmin.repository.VpnRepository;
-import ru.rudn.rudnadmin.repository.VpnTaskRepository;
 import ru.rudn.rudnadmin.service.openvpn.VpnService;
 import ru.rudn.rudnadmin.service.vpn.VpnTaskFlow;
 
@@ -17,7 +16,6 @@ public class VpnTaskFlowDeleteOvpn implements VpnTaskFlow {
 
     private final VpnService vpnService;
     private final VpnRepository vpnRepository;
-    private final VpnTaskRepository taskRepository;
 
     @Override
     public void makeLogic(VpnTask task) {

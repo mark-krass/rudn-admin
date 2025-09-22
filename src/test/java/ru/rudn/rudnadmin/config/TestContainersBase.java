@@ -1,6 +1,5 @@
 package ru.rudn.rudnadmin.config;
 
-import io.minio.BucketExistsArgs;
 import io.minio.ListObjectsArgs;
 import io.minio.MinioClient;
 import io.minio.RemoveObjectArgs;

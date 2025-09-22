@@ -192,7 +192,7 @@ class StudentControllerTest extends TestContainersBase {
         final User u1 = userRepository.save(userEntity1());
         final User u2 = userRepository.save(userEntity2());
 
-        final Student s1 = studentRepository.save(Student.builder().group(group).user(u1).build());
+        studentRepository.save(Student.builder().group(group).user(u1).build());
         final Student s2 = studentRepository.save(Student.builder().group(group).user(u2).build());
 
         vpnRepository.save(Vpn.builder().user(u2).link("link2").build());

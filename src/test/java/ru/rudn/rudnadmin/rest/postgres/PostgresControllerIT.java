@@ -55,8 +55,8 @@ class PostgresControllerIT extends TestContainersBase {
         final Group group = groupRepository.save(Group.builder().name("G1").year((short) 2024).direction(dir).build());
         final User u1 = userRepository.save(User.builder().email("123@e").build());
         final User u2 = userRepository.save(User.builder().email("124@e").build());
-        final Student s1 = studentRepository.save(Student.builder().group(group).user(u1).build());
-        final Student s2 = studentRepository.save(Student.builder().group(group).user(u2).build());
+        studentRepository.save(Student.builder().group(group).user(u1).build());
+        studentRepository.save(Student.builder().group(group).user(u2).build());
 
         final String dbName = "stud_" + UUID.randomUUID().toString().replace('-', '_');
         final PostgresRequest req = new PostgresRequest();
