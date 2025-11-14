@@ -23,6 +23,7 @@ public class VpnTaskScheduler {
     public synchronized void createVpnForAllTasks() {
         log.info("Starting creating vpn scheduler at {}", LocalDateTime.now());
         final List<VpnTask> vpnTasksByIsActive = taskRepository.findVpnTasksByIsActiveTrue();
+        // Обновляется в одном потоке, т.к. операция проводится один раз в год
         for (VpnTask vpnTask : vpnTasksByIsActive) {
             final Long taskId = vpnTask.getId();
             boolean keepProcessing = true;

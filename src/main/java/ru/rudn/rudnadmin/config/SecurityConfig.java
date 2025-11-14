@@ -36,6 +36,7 @@ public class SecurityConfig {
         return http.build();
     }
 
+    //TODO временная заглушка.
     @Bean
     public UserDetailsService users(PasswordEncoder encoder) {
         final var user = User
