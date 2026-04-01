@@ -5,9 +5,11 @@ services:
   student-db:
     image: postgres:16.9
     container_name: student-db
+    restart: always
     environment:
       <<: *common-env
       POSTGRES_DB: postgres
+#      Change me for prod
       POSTGRES_USER: studentDBAdmin
       POSTGRES_PASSWORD: studentPass
     ports:
@@ -19,13 +21,22 @@ services:
       retries: 5
     volumes:
       - student-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+    networks:
+      - admin_net
 
   rudn-db:
     image: postgres:16.9
     container_name: rudn-db
+    restart: always
     environment:
       <<: *common-env
       POSTGRES_DB: rudn
+#      Change me for prod
       POSTGRES_USER: mainBDAdmin
       POSTGRES_PASSWORD: mainBDPass
     ports:
@@ -37,12 +48,21 @@ services:
       retries: 5
     volumes:
       - admin-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    networks:
+      - admin_net
 
   minio:
     image: minio/minio:RELEASE.2025-07-23T15-54-02Z
     container_name: minio
+    restart: always
     command: server --console-address ":9001" /data
     environment:
+#      Change me for prod
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     ports:
@@ -55,15 +75,24 @@ services:
       interval: 10s
       timeout: 10s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+    networks:
+      - admin_net
 
   rudn-admin:
     container_name: rudn-admin
+    restart: always
     image: rudn-admin-image:latest
     depends_on:
       rudn-db:
         condition: service_healthy
       minio:
         condition: service_healthy
+#        Вырубать вообще порты для продакшна если ходим через балансировщик по shared сети
     ports:
       - "8080:8080"
       - "5005:5005"
@@ -121,8 +150,20 @@ services:
 #        -XX:MaxRAMPercentage=60
 #        -XX:+ExitOnOutOfMemoryError
 
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+    networks:
+      - admin_net
+
 
 volumes:
   minio-data:
   admin-data:
   student-data:
+
+networks:
+  admin_net:
+    external: true
