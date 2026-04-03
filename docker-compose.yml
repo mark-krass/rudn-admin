@@ -56,6 +56,76 @@ services:
     networks:
       - admin_net
 
+  keycloak-db:
+    image: postgres:16.9
+    container_name: keycloak-db
+    restart: always
+    environment:
+      <<: *common-env
+      POSTGRES_DB: keycloak
+#      Change me for prod
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U keycloak -d keycloak" ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+    volumes:
+      - keycloak-data:/var/lib/postgresql/data
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+    networks:
+      - admin_net
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.2.5
+    container_name: keycloak
+    restart: always
+    # DEV: запуск в упрощенном режиме + автоимпорт realm.
+    # PROD: вместо start-dev использовать "start --optimized",
+    #       убрать --import-realm и задать реальный --hostname.
+    command:
+      - start-dev               # DEV only
+      - --http-port=8080        # DEV/PROD (если нужен HTTP за reverse-proxy)
+      - --hostname-strict=false # DEV only
+      - --import-realm          # DEV only (инициализация из файла)
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+    environment:
+      <<: *common-env
+      KC_DB: postgres
+      KC_DB_URL_HOST: keycloak-db
+      KC_DB_URL_PORT: 5432
+      KC_DB_URL_DATABASE: keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin   # DEV only; в PROD через secret/env manager
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin   # DEV only; в PROD через secret/env manager
+      KC_HEALTH_ENABLED: "true"
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./volumes/keycloak/realm:/opt/keycloak/data/import:ro # DEV only для --import-realm
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -fsS http://localhost:9000/health/ready || exit 1" ]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+    networks:
+      - admin_net
+
   minio:
     image: minio/minio:RELEASE.2025-07-23T15-54-02Z
     container_name: minio
@@ -92,6 +162,8 @@ services:
         condition: service_healthy
       minio:
         condition: service_healthy
+      keycloak:
+        condition: service_healthy
 #        Вырубать вообще порты для продакшна если ходим через балансировщик по shared сети
     ports:
       - "8080:8080"
@@ -126,6 +198,9 @@ services:
       STUDENT_DB_PORT: 5432
       STUDENT_DB_USERNAME: studentDBAdmin
       STUDENT_DB_PASSWORD: studentPass
+
+      KEYCLOAK_ISSUER_URI: http://keycloak:8080/realms/rudn
+      KEYCLOAK_CLIENT_ID: rudn-admin-api
 
       SERVER_FORWARD_HEADERS_STRATEGY: framework
 
@@ -163,6 +238,7 @@ volumes:
   minio-data:
   admin-data:
   student-data:
+  keycloak-data:
 
 networks:
   admin_net:

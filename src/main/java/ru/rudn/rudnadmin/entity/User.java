@@ -39,6 +39,9 @@ public class User {
     @Column
     private LocalDate birthday;
 
+    @Column(name = "keycloak_user_id", unique = true)
+    private String keycloakUserId;
+
     @OneToOne(mappedBy = "user", fetch = FetchType.LAZY)
     private Student student;
 

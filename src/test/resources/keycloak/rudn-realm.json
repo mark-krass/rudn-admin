@@ -1,0 +1,106 @@
+{
+  "realm": "rudn",
+  "enabled": true,
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "clients": [
+    {
+      "clientId": "rudn-admin-api",
+      "name": "RUDN Admin API Test Client",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": true,
+      "bearerOnly": false,
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": true,
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "fullScopeAllowed": false,
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
+      ]
+    }
+  ],
+  "roles": {
+    "client": {
+      "rudn-admin-api": [
+        {
+          "name": "ADMIN"
+        },
+        {
+          "name": "MANAGER"
+        },
+        {
+          "name": "KEYCLOAK_MANAGER"
+        }
+      ]
+    }
+  },
+  "users": [
+    {
+      "username": "admin_user",
+      "enabled": true,
+      "firstName": "Admin",
+      "lastName": "User",
+      "email": "admin_user@example.com",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "admin_pass",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "rudn-admin-api": [
+          "ADMIN"
+        ]
+      }
+    },
+    {
+      "username": "manager_user",
+      "enabled": true,
+      "firstName": "Manager",
+      "lastName": "User",
+      "email": "manager_user@example.com",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "manager_pass",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "rudn-admin-api": [
+          "MANAGER"
+        ]
+      }
+    },
+    {
+      "username": "kc_manager_user",
+      "enabled": true,
+      "firstName": "Keycloak",
+      "lastName": "Manager",
+      "email": "kc_manager_user@example.com",
+      "emailVerified": true,
+      "requiredActions": [],
+      "credentials": [
+        {
+          "type": "password",
+          "value": "kc_manager_pass",
+          "temporary": false
+        }
+      ],
+      "clientRoles": {
+        "rudn-admin-api": [
+          "KEYCLOAK_MANAGER"
+        ]
+      }
+    }
+  ]
+}

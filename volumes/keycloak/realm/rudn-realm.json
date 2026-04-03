@@ -1,0 +1,53 @@
+{
+  "realm": "rudn",
+  "enabled": true,
+  "displayName": "RUDN",
+  "registrationAllowed": false,
+  "resetPasswordAllowed": true,
+  "rememberMe": true,
+  "clients": [
+    {
+      "clientId": "rudn-admin-api",
+      "name": "RUDN Admin API",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "bearerOnly": true,
+      "standardFlowEnabled": false,
+      "directAccessGrantsEnabled": false,
+      "serviceAccountsEnabled": false,
+      "authorizationServicesEnabled": false,
+      "fullScopeAllowed": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "rudn-admin-api-secret",
+      "defaultClientScopes": [
+        "profile",
+        "email",
+        "roles"
+      ],
+      "optionalClientScopes": [
+        "address",
+        "phone",
+        "microprofile-jwt"
+      ]
+    }
+  ],
+  "roles": {
+    "client": {
+      "rudn-admin-api": [
+        {
+          "name": "ADMIN",
+          "description": "Full access to rudn-admin API."
+        },
+        {
+          "name": "MANAGER",
+          "description": "Application manager access without Keycloak administration."
+        },
+        {
+          "name": "KEYCLOAK_MANAGER",
+          "description": "Can manage users via application API endpoints."
+        }
+      ]
+    }
+  }
+}
