@@ -1,9 +1,5 @@
 # rudn-admin
 Spring Boot backend for the RUDN administration system. Manages users, student data, role-based access via Keycloak, and OpenVPN configuration lifecycle (scripts + MinIO storage).
-
-> Общие для всей RUDN-экосистемы правила (стек, git workflow, Keycloak,
-> CSRF/CORS) см. в `../CLAUDE.md` (зонтичный).
-
 ## Quick start (local)
 1. Ensure the external Docker network exists:
    ```bash
@@ -48,14 +44,29 @@ See `application.yml` for the full list. Key ones:
 - `service/vpn/` — OpenVPN lifecycle (scheduler + script execution)
 - `service/minio/` — MinIO client wrapper for `vpn` bucket
 - `src/main/resources/db/changelog/` — Liquibase (master in YAML, changesets in SQL)
-## Project-specific facts
-- **Две Postgres-БД**: `rudn` (основная, owned by this app, schema `admin`, таблица `rudn_user` и др.) и `student` (внешний read-mostly источник).
-- **MinIO bucket `vpn`** хранит `.ovpn` файлы, генерируемые скриптами из `VPN_CREATE_SCRIPT` / `VPN_DELETE_SCRIPT`.
-- **Role matrix**: `/api/**` → роли `ADMIN` или `MANAGER` (см. `SecurityConfig`).
-- **Liquibase default schema** = `admin` (через `DB_SCHEMA`, Liquibase сконфигурирован с `default-schema`).
+## Agents available
+- `backend-dev` — any Java/Spring/Liquibase work in this repo. See `.claude/agents/backend-dev.md`.
+- `code-reviewer` — read-only reviewer before commit (user-level, not in this repo).
+- `devops` — not yet created; lives in the future `rudn-infra` repo.
+- `frontend-dev` — not yet created; lives in the future `rudn-frontend` repo.
+## Git workflow (mandatory)
+- Integration branch: `master`.
+- **Never commit directly to `master`.** Always a feature branch + PR:
+  ```bash
+  git switch master && git pull
+  git switch -c feature/<short-name>
+  # ... work, commit ...
+  git push -u origin feature/<short-name>
+  ```
+- Commit messages: Conventional Commits (`feat:`, `fix:`, `chore:`, `refactor:`, `test:`).
 ## Known gotchas
 - `docker-compose.yml` requires an **external** network `admin_net`. Create it once: `docker network create admin_net`.
 - Keycloak's `rudn-realm.json` is auto-imported only on first start (thanks to `--import-realm`). To re-import after edits, remove the `keycloak-data` volume.
 - The `student.datasource.url` in `application.yml` does NOT include a database name after the port — it relies on the default DB or the env-configured one. If JDBC errors appear at startup, check this first.
-- Keycloak bootstrap-креды в `docker-compose.yml` — placeholder для локалки, не должны попасть в прод-compose/values.
+- Security is configured with **CSRF and CORS disabled** intentionally. In production an upstream Nginx handles CORS and TLS termination. Do not re-enable inside the app without discussion.
 - CI/CD is not set up yet. All tests must pass locally before PR (`./gradlew test`).
+- `docker-compose.yml` currently lives in this repo. Long-term it will move to a dedicated `rudn-infra` repo.
+## Where things are NOT
+- No frontend code here (future `rudn-frontend`).
+- No Nginx configs here (future `rudn-infra`).
+- No deploy scripts here yet.
