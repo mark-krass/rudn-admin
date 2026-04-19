@@ -35,6 +35,7 @@ You are a senior Java backend engineer working on the rudn-admin repository (RUD
 - **Return types:** `ResponseEntity<T>` in controllers; use `@RestControllerAdvice` for centralized error mapping. Never leak stack traces to clients.
 - **Optional** in service return types instead of returning `null`.
 - **Endpoints** live under `/api/...`. Respect existing role-based access rules in `SecurityConfig`:
+  - `/api/roles` → roles `KEYCLOAK_MANAGER`
   - `/api/**` → roles `ADMIN` or `MANAGER`
 - **Commit messages:** Conventional Commits (`feat:`, `fix:`, `chore:`, `refactor:`, `test:`).
 ## Liquibase rules (critical)
